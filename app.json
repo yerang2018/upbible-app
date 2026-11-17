@@ -1,25 +1,46 @@
 {
   "expo": {
-    "name": "malsseum-feed",
+    "name": "업바이블",
     "slug": "malsseum-feed",
+    "scheme": "malsseumfeed",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "backgroundColor": "#F7F3EA",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.kangducheol.malsseumfeed",
+      "buildNumber": "1",
+      "usesAppleSignIn": true
     },
     "android": {
-      "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/android-icon-foreground.png",
-        "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
-      },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.kangducheol.malsseumfeed",
+      "versionCode": 1,
+      "softwareKeyboardLayoutMode": "resize"
     },
+    "plugins": [
+      "expo-status-bar",
+      "expo-router",
+      "expo-font",
+      "expo-sharing",
+      "expo-apple-authentication",
+      ["expo-secure-store", { "configureAndroidBackup": true, "faceIDPermission": false }]
+    ],
+    "extra": {
+      "router": {
+        "asyncRoutes": {
+          "web": true
+        }
+      },
+      "eas": {
+        "projectId": "c2e83bbb-ca0d-481b-a6b6-3eda39bbb11d"
+      }
+    },
+    "owner": "kangducheol",
+    "icon": "./assets/branding/upbible-icon.png",
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/branding/upbible-favicon.png"
     }
   }
 }

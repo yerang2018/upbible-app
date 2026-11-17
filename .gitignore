@@ -31,7 +31,9 @@ yarn-error.*
 *.pem
 
 # local env files
-.env*.local
+.env
+.env.*
+credentials.json
 
 # typescript
 *.tsbuildinfo
@@ -39,3 +41,13 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+output/
+
+# Xcode / local tools
+xcuserdata/
+DerivedData/
+*.xcuserstate
+*.ipa
+*.apk
+*.aab
+*.tar.gz
