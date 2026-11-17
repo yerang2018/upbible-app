@@ -73,3 +73,7 @@ npm run bible:check  # 성경 데이터 검사
 1. AI가 GitHub 저장소 코드를 수정해 올립니다(커밋·푸시).
 2. 예랑님이 맥북에서 `git pull` 후 위 "아이폰에서 실행하는 방법"의 2번 또는 3번을 실행합니다.
 작업이 끝나면 AI는 이 파일의 "현재 상태"와 `docs/release/출시_진행상황.md`를 갱신합니다.
+
+## GitHub 저장소
+
+- https://github.com/yerang2018/malsseum-feed (private). 맥북의 이 폴더는 이미 연결되어 있어 `git pull`, `git push`가 바로 됩니다(GitHub CLI는 `~/.local/bin/gh`).
