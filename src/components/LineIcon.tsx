@@ -30,9 +30,9 @@ export function LineIcon({ name, size = 22, color = colors.navy, filled = false 
       <Path d="M12 15V3m-4 4 4-4 4 4M6 11H5a1 1 0 0 0-1 1v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7a1 1 0 0 0-1-1h-1" />
     </>}
     {name === 'shorts' && <>
-      <Path d="M5 3h13a1 1 0 0 1 1 1v16H6a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3Z" fill={filled ? color : 'none'} />
-      <Path d="M6 3v13M3 17h16" stroke={filled ? colors.paper : color} />
-      <Path d="m10 7 5 3-5 3Z" fill={filled ? colors.paper : color} stroke="none" />
+      <Path d="M9.6 3H18a1.5 1.5 0 0 1 1.5 1.5V15.9q0 .6-.45 1.05L17 19q-.5.5-1.2.5H6.5A1.5 1.5 0 0 1 5 18V7.3q0-.7.5-1.2L7.6 3.9Q8.5 3 9.6 3Z" fill={filled ? color : 'none'} />
+      <Path d="M8.2 3.4V15a1.5 1.5 0 0 0 1.5 1.5h9.6M8.6 16.1 5.6 19.1" stroke={filled ? colors.paper : color} />
+      <Path d="M12 6.8v6l5-3Z" fill={filled ? colors.paper : color} stroke={filled ? colors.paper : color} strokeWidth={1} />
     </>}
     {name === 'settings' && <>
       <Path d="m10 2-.6 2.2-1.6.9-2.2-.6-2 3.4 1.6 1.6v1.9l-1.6 1.6 2 3.4 2.2-.6 1.6.9L10 19h4l.6-2.3 1.6-.9 2.2.6 2-3.4-1.6-1.6V9.5l1.6-1.6-2-3.4-2.2.6-1.6-.9L14 2Z" />
