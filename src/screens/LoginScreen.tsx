@@ -56,7 +56,7 @@ export default function LoginScreen() {
           style={styles.logo}
         />
         <Text accessibilityRole="header" style={styles.name}>업바이블</Text>
-        <Text style={styles.tagline}>숏폼 말고,{'\n'}하나님 말씀에 머무는 시간</Text>
+        <Text style={styles.tagline}>숏폼 말고,{'\n'}하나님 말씀을 내리는 시간</Text>
         <Text style={styles.description}>네이버 또는 카카오로 로그인하고 말씀 기록을 이어 보세요.</Text>
       </View>
 
@@ -65,8 +65,12 @@ export default function LoginScreen() {
         {button('카카오로 로그인', 'kakao', '#FEE500')}
         {!reader.ready && <ActivityIndicator accessibilityLabel="로그인 상태 확인 중" color={colors.navy} />}
         {reader.storageError && <Text accessibilityLiveRegion="polite" style={styles.notice}>기기 기록을 확인하지 못했습니다. 기존 기록을 보존하기 위해 앱을 다시 열어 주세요.</Text>}
-        {message && <Text accessibilityLiveRegion="polite" style={styles.notice}>{message}</Text>}
-        <Link href="/privacy" style={styles.privacy}>개인정보 처리 안내</Link>
+        {message ? <Text accessibilityLiveRegion="polite" style={styles.notice}>{message}</Text> : null}
+        <Link href="/privacy" asChild>
+          <Pressable accessibilityRole="link" style={styles.privacy}>
+            <Text style={styles.privacyText}>개인정보 처리 안내</Text>
+          </Pressable>
+        </Link>
       </View>
     </ScrollView>
   </SafeAreaView>;
@@ -85,5 +89,6 @@ const styles = StyleSheet.create({
   providerButtonText: { color: colors.navy, fontSize: 16, fontWeight: '700' },
   disabled: { opacity: 0.55 },
   notice: { color: colors.muted, fontSize: 13, lineHeight: 20, textAlign: 'center' },
-  privacy: { color: colors.muted, fontSize: 12, textAlign: 'center', paddingVertical: 8 },
+  privacy: { alignItems: 'center', justifyContent: 'center', minHeight: 40 },
+  privacyText: { color: colors.muted, fontSize: 12, textAlign: 'center' },
 });
