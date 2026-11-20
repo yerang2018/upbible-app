@@ -22,6 +22,7 @@ export default function RootLayout() {
     <AppearanceProvider><ReaderProvider>
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.paper } }}>
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="login" />
         <Stack.Screen name="licenses" />
         <Stack.Screen name="privacy" />
         <Stack.Screen name="account" />

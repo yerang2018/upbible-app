@@ -1,7 +1,7 @@
 import { Pressable } from '../components/Touch';
 import { useState } from 'react';
 import { Link, router } from 'expo-router';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppText as Text } from '../components/AppText';
 import { LineIcon } from '../components/LineIcon';
@@ -50,7 +50,7 @@ export default function Account() {
     <View style={styles.header}><Text accessibilityRole="header" style={styles.title}>내 계정</Text>
       <Pressable accessibilityRole="button" accessibilityLabel="닫기" style={styles.close} onPress={() => router.replace('/')}><LineIcon name="close" /></Pressable></View>
     <ScrollView contentContainerStyle={styles.content}>
-      <Text style={styles.description}>{!reader.ready ? '계정을 확인하고 있습니다.' : reader.userId ? '로그인되었습니다. 계정별 기록을 사용하고 있습니다.' : '로그인하면 여러 기기에서 기록을 이어 볼 수 있습니다. 로그인 없이도 성경을 읽을 수 있습니다.'}</Text>
+      <Text style={styles.description}>{!reader.ready ? '계정을 확인하고 있습니다.' : reader.userId ? '로그인되었습니다. 계정별 기록을 사용하고 있습니다.' : Platform.OS === 'web' ? '로그인하면 여러 기기에서 기록을 이어 볼 수 있습니다. 로그인 없이도 성경을 읽을 수 있습니다.' : '네이버 또는 카카오로 로그인해 여러 기기에서 기록을 이어 보세요.'}</Text>
       {reader.storageError && <Text style={styles.description}>기기 기록을 읽지 못해 변경을 중단했습니다. 기존 기록을 보존하기 위해 앱을 다시 열어 주세요.</Text>}
       {!reader.userId ? <>
         {button('네이버로 로그인', () => { void login('custom:naver'); }, { backgroundColor: '#03C75A' }, Boolean(unavailable))}

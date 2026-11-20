@@ -1,14 +1,22 @@
 import { Pressable } from '../../components/Touch';
-import { Tabs } from 'expo-router';
+import { Redirect, Tabs } from 'expo-router';
+import { ActivityIndicator, Platform, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { LineIcon } from '../../components/LineIcon';
 import { useAppearance } from '../../state/Appearance';
+import { useReader } from '../../state/ReaderState';
 import { colors } from '../../theme';
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
   const { background } = useAppearance();
+  const reader = useReader();
+  if (Platform.OS !== 'web' && !reader.ready) return <View style={{ flex: 1, backgroundColor: background, justifyContent: 'center', alignItems: 'center' }}>
+    <ActivityIndicator accessibilityLabel="로그인 상태 확인 중" color={colors.navy} />
+  </View>;
+  if (Platform.OS !== 'web' && !reader.userId) return <Redirect href="/login" />;
+
   return <Tabs screenOptions={{
     headerShown: false,
     tabBarActiveTintColor: colors.navy,
