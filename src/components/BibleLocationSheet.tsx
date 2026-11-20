@@ -56,8 +56,8 @@ export function BibleLocationSheet({ current, verses, searchable = false, onSele
         <Pressable key={item.id} accessibilityRole="tab" accessibilityLabel={`${item.label} 성경 선택`}
           accessibilityState={{ selected: testament === item.id }}
           onPress={() => { setTestament(item.id); setQuery(''); setStep('book'); }}
-          style={[styles.testament, testament === item.id && styles.selectedCell]}>
-          <Text style={[styles.testamentText, testament === item.id && styles.selectedText]}>{item.label}</Text>
+          style={[styles.testament, testament === item.id && styles.activeTestament]}>
+          <Text style={[styles.testamentText, testament === item.id && styles.activeTestamentText]}>{item.label}</Text>
         </Pressable>)}
     </View>
     {step !== 'book' && <View style={styles.breadcrumb}>
@@ -111,12 +111,13 @@ const styles = StyleSheet.create({
   searchFocused: { borderColor: colors.navy, backgroundColor: '#FFFFFF', boxShadow: '0px 0px 0px 3px rgba(31,42,68,0.08)' },
   searchResult: { width: '100%', minHeight: 54, alignItems: 'flex-start', paddingHorizontal: 16 },
   searchBox: { flexDirection: 'row', alignItems: 'center', gap: 10, minHeight: 50, paddingHorizontal: 12,
-    marginBottom: 14, borderWidth: 1, borderColor: colors.line, borderRadius: 14, backgroundColor: colors.card },
+    marginBottom: 14, borderWidth: 1, borderColor: colors.line, borderRadius: 12, backgroundColor: colors.card },
   searchInput: { flex: 1, minWidth: 0, fontSize: 16, minHeight: 50, paddingVertical: 10, color: colors.navy },
-  testaments: { flexDirection: 'row', gap: 8, marginBottom: 14 },
-  testament: { flex: 1, minHeight: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1, borderColor: colors.line, backgroundColor: colors.card },
+  testaments: { flexDirection: 'row', marginBottom: 14, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: colors.line },
+  testament: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderBottomWidth: 2, borderColor: 'transparent' },
+  activeTestament: { borderColor: colors.navy },
   testamentText: { color: colors.navy, fontSize: 16, fontWeight: '600' },
+  activeTestamentText: { fontWeight: '700' },
   steps: { flexDirection: 'row', gap: 8, marginBottom: 18, borderBottomWidth: 1, borderColor: colors.line },
   step: { flex: 1, minHeight: 44, justifyContent: 'center', alignItems: 'center', borderBottomWidth: 2, borderColor: 'transparent' },
   activeStep: { borderColor: colors.navy },
@@ -127,11 +128,11 @@ const styles = StyleSheet.create({
   options: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, paddingBottom: 8 },
   bookCell: { width: '47%', minHeight: 50, borderRadius: 8, alignItems: 'flex-start', justifyContent: 'center', paddingVertical: 10, paddingHorizontal: 4,
     borderBottomWidth: 1, borderColor: colors.line, backgroundColor: 'transparent' },
-  numberCell: { width: '17%', minHeight: 48, paddingVertical: 8, borderRadius: 14, alignItems: 'center', justifyContent: 'center',
+  numberCell: { width: '17%', minHeight: 48, paddingVertical: 8, borderRadius: 10, alignItems: 'center', justifyContent: 'center',
     borderWidth: 1, borderColor: colors.line, backgroundColor: colors.card },
   selectedCell: { backgroundColor: colors.navy, borderColor: colors.navy },
   cellText: { color: colors.navy, fontSize: 16 },
   selectedText: { color: colors.paper },
-  go: { minHeight: 52, backgroundColor: colors.navy, borderRadius: 18, alignItems: 'center', justifyContent: 'center', marginVertical: 18 },
+  go: { minHeight: 52, backgroundColor: colors.navy, borderRadius: 14, alignItems: 'center', justifyContent: 'center', marginVertical: 18 },
   goText: { textAlign: 'center', color: colors.paper, fontSize: 15, fontWeight: '600' },
 });

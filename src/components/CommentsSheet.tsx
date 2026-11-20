@@ -59,8 +59,8 @@ const styles = StyleSheet.create({
   text: { fontSize: 15, lineHeight: 23, color: colors.navy },
   composer: { flexDirection: 'row', alignItems: 'flex-end', gap: 10, paddingVertical: 18 },
   input: { flex: 1, fontSize: 15, lineHeight: 22, minHeight: 48, maxHeight: 112, color: colors.navy,
-    backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line, borderRadius: 18, padding: 13 },
-  submit: { minHeight: 48, paddingVertical: 10, paddingHorizontal: 17, borderRadius: 18, backgroundColor: colors.navy, justifyContent: 'center' },
+    backgroundColor: colors.card, borderWidth: 1, borderColor: colors.line, borderRadius: 12, padding: 13 },
+  submit: { minHeight: 48, paddingVertical: 10, paddingHorizontal: 17, borderRadius: 12, backgroundColor: colors.navy, justifyContent: 'center' },
   disabled: { opacity: 0.35 },
   submitText: { color: colors.paper, fontSize: 13, fontWeight: '600' },
 });

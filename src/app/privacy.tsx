@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import { Linking, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LineIcon } from '../components/LineIcon';
-import { colors, serif } from '../theme';
+import { colors } from '../theme';
 
 export default function Privacy() {
   return <SafeAreaView style={styles.screen}>
@@ -36,7 +36,7 @@ export default function Privacy() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.paper },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 14 },
-  title: { fontFamily: serif, fontSize: 23, color: colors.navy, flexShrink: 1 },
+  title: { fontSize: 22, fontWeight: '700', color: colors.navy, flexShrink: 1 },
   close: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center' },
   content: { paddingHorizontal: 28, paddingBottom: 40 },
   heading: { fontSize: 16, fontWeight: '600', color: colors.navy, marginTop: 24, marginBottom: 10 },

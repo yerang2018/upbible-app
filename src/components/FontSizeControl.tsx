@@ -40,13 +40,12 @@ export function FontSizeControl() {
     onPanResponderTerminate: () => { zoom.setValue(1); x.setValue((fontLevel - 1) * 47); },
   });
   return <View accessibilityRole="radiogroup" accessibilityLabel="성경 본문 크기" style={styles.control} {...pan.panHandlers}>
-    <Animated.View pointerEvents="none" style={[styles.glass, { transform: [{ translateX: x }, { scale: zoom }] }]}><View style={styles.shine} /></Animated.View>
+    <Animated.View pointerEvents="none" style={[styles.selection, { transform: [{ translateX: x }, { scale: zoom }] }]} />
     {fontLevels.map(level => <Pressable key={level} accessibilityRole="radio" accessibilityLabel={`성경 본문 크기 ${level}단계`} accessibilityState={{ checked: fontLevel === level }} disabled={!ready} onPress={() => setFontLevel(level)} style={styles.option}><Text style={{ fontSize: 10 + level * 5, lineHeight: 36, color: colors.navy, fontWeight: fontLevel === level ? '700' : '400' }}>가</Text></Pressable>)}
   </View>;
 }
 const styles = StyleSheet.create({
-  control: { width: 150, height: 52, flexDirection: 'row', alignItems: 'center', gap: 3, padding: 5, borderRadius: 26, backgroundColor: 'rgba(234,235,232,0.85)', borderColor: colors.line, borderWidth: 1 },
-  option: { width: 44, height: 40, alignItems: 'center', justifyContent: 'center', borderRadius: 22 },
-  glass: { position: 'absolute', left: 5, top: 5, width: 44, height: 40, borderRadius: 22, backgroundColor: 'rgba(255,255,255,0.88)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.95)', boxShadow: '0px 2px 6px rgba(31,42,68,0.12)' },
-  shine: { position: 'absolute', top: 2, left: 8, right: 8, height: 8, borderRadius: 10, backgroundColor: 'rgba(255,255,255,0.45)' },
+  control: { width: 150, height: 52, flexDirection: 'row', alignItems: 'center', gap: 3, padding: 5, borderRadius: 14, backgroundColor: '#F3F4F6', borderColor: colors.line, borderWidth: 1 },
+  option: { width: 44, height: 40, alignItems: 'center', justifyContent: 'center', borderRadius: 10 },
+  selection: { position: 'absolute', left: 5, top: 5, width: 44, height: 40, borderRadius: 10, backgroundColor: colors.paper, borderWidth: 1, borderColor: colors.line },
 });

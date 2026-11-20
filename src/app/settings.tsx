@@ -12,7 +12,15 @@ export default function Settings() {
       <View style={styles.header}><Text style={styles.title}>설정</Text><Pressable accessibilityRole="button" onPress={() => router.canGoBack() ? router.back() : router.replace('/my')} style={styles.close}><Text>닫기</Text></Pressable></View>
       <Text style={styles.heading}>읽기 배경</Text>
       <Text style={styles.body}>쇼츠와 MY 화면의 배경을 선택하세요.</Text>
-      <View style={styles.grid}>{backgrounds.map(item => <Pressable key={item.color} disabled={!ready} accessibilityRole="button" accessibilityLabel={`${item.name} 배경`} accessibilityState={{ selected: background === item.color }} onPress={() => setBackground(item.color)} style={[styles.swatch, { backgroundColor: item.color, borderColor: background === item.color ? colors.navy : colors.line }]}><Text>{item.name}{background === item.color ? ' ✓' : ''}</Text></Pressable>)}</View>
+      <View style={styles.grid}>{backgrounds.map(item => <Pressable key={item.color} disabled={!ready}
+        accessibilityRole="button" accessibilityLabel={`${item.name} 배경`}
+        accessibilityState={{ selected: background === item.color }}
+        onPress={() => setBackground(item.color)} style={styles.swatchOption}>
+        <View style={[styles.swatch, { backgroundColor: item.color }, background === item.color && styles.selectedSwatch]}>
+          {background === item.color && <Text style={styles.check}>✓</Text>}
+        </View>
+        <Text style={[styles.swatchName, background === item.color && styles.selectedName]}>{item.name}</Text>
+      </Pressable>)}</View>
       {error && <Text role="alert">배경 설정을 저장하지 못했습니다. 저장 공간을 확인해 주세요.</Text>}
       <Text style={styles.heading}>성경 본문 크기</Text>
       <Text style={styles.body}>성경 읽기 화면 왼쪽 위의 ‘가가가’에서 본문을 보며 바로 조절하세요. 버튼과 메뉴 크기는 유지됩니다.</Text>
@@ -21,12 +29,17 @@ export default function Settings() {
   </SafeAreaView>;
 }
 const styles = StyleSheet.create({
-  content: { padding: 24, gap: 18, maxWidth: 680, width: '100%', alignSelf: 'center' },
+  content: { padding: 24, gap: 14, maxWidth: 680, width: '100%', alignSelf: 'center' },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  title: { fontSize: 26, fontWeight: '700', color: colors.navy }, close: { padding: 14 },
-  heading: { fontSize: 18, color: colors.navy, fontWeight: '600', marginTop: 22 },
-  body: { fontSize: 14, lineHeight: 23, color: colors.muted },
-  readButton: { padding: 18, backgroundColor: 'rgba(255,255,255,0.8)', borderRadius: 18, borderWidth: 1, borderColor: colors.line },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
-  swatch: { width: '46%', minHeight: 84, borderRadius: 20, borderWidth: 2, justifyContent: 'center', alignItems: 'center' },
+  title: { fontSize: 24, fontWeight: '700', color: colors.navy }, close: { padding: 14 },
+  heading: { fontSize: 17, color: colors.navy, fontWeight: '700', marginTop: 18 },
+  body: { fontSize: 14, lineHeight: 22, color: colors.muted },
+  readButton: { minHeight: 50, paddingHorizontal: 16, justifyContent: 'center', backgroundColor: colors.card, borderRadius: 12, borderWidth: 1, borderColor: colors.line },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: 14, paddingVertical: 4 },
+  swatchOption: { width: '31%', minHeight: 76, alignItems: 'center', justifyContent: 'center', gap: 7 },
+  swatch: { width: 40, height: 40, borderRadius: 20, borderWidth: 1, borderColor: colors.line, alignItems: 'center', justifyContent: 'center' },
+  selectedSwatch: { borderWidth: 2, borderColor: colors.navy },
+  check: { color: colors.navy, fontSize: 14, fontWeight: '700' },
+  swatchName: { color: colors.muted, fontSize: 12 },
+  selectedName: { color: colors.navy, fontWeight: '700' },
 });

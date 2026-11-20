@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LineIcon } from '../components/LineIcon';
 import { licenseNotices } from '../content/licenses';
 import { attributionFull } from '../data/bible';
-import { colors, serif } from '../theme';
+import { colors } from '../theme';
 
 export default function Licenses() {
   return <SafeAreaView style={styles.screen}>
@@ -37,7 +37,7 @@ export default function Licenses() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.paper },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, paddingVertical: 14 },
-  title: { fontFamily: serif, fontSize: 23, color: colors.navy },
+  title: { fontSize: 22, fontWeight: '700', color: colors.navy },
   close: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center' },
   content: { paddingHorizontal: 28, paddingBottom: 40 },
   label: { fontSize: 14, fontWeight: '600', color: colors.navy, marginTop: 26, marginBottom: 12 },

@@ -12,7 +12,7 @@ import { isInReadingScope } from '../data/reading-scope';
 import { reference } from '../domain/bible-model';
 import type { Verse } from '../domain/bible-model';
 import { useReader } from '../state/ReaderState';
-import { colors, serif } from '../theme';
+import { colors } from '../theme';
 
 export default function MyScreen() {
   const reader = useReader();
@@ -20,38 +20,61 @@ export default function MyScreen() {
   const [category, setCategory] = useState<'saved' | 'liked'>('saved');
   const savedIds = reader.bookmarks.filter(isInReadingScope);
   const likedIds = reader.likes.filter(isInReadingScope);
-  const firstUse = savedIds.length === 0 && likedIds.length === 0;
   const ids = category === 'saved' ? savedIds : likedIds;
   const verses = [...ids].reverse().map(id => bible.find(id)).filter((item): item is Verse => Boolean(item));
 
   return <SafeAreaView edges={['top', 'left', 'right']} style={[styles.screen, { backgroundColor: background }]}>
     <View style={styles.header}>
-      <Text accessibilityRole="header" style={styles.title}>MY</Text>
-      <Link href="/settings" asChild><Pressable accessibilityRole="button" accessibilityLabel="설정 열기" style={{ position: 'absolute', right: 24, top: 24, padding: 12 }}><LineIcon name="settings" size={25} /></Pressable></Link>
-      <Text style={styles.subtitle}>내 말씀</Text>
+      <Text accessibilityRole="header" style={styles.title}>내 말씀</Text>
+      <View style={styles.headerActions}>
+        <Link href="/account" asChild>
+          <Pressable accessibilityRole="button" accessibilityLabel="내 계정 열기" style={styles.headerAction}>
+            <LineIcon name="person" size={22} />
+          </Pressable>
+        </Link>
+        <Link href="/settings" asChild>
+          <Pressable accessibilityRole="button" accessibilityLabel="설정 열기" style={styles.headerAction}>
+            <LineIcon name="settings" size={22} />
+          </Pressable>
+        </Link>
+      </View>
     </View>
+
     <View style={styles.filters}>
-      <Pressable accessibilityRole="button" accessibilityLabel="저장한 말씀 보기" accessibilityState={{ selected: category === 'saved' }}
-        onPress={() => setCategory('saved')} style={[styles.filter, category === 'saved' && styles.selected]}>
-        <LineIcon name="bookmark" size={17} filled={category === 'saved'} />
-        <Text style={styles.filterText}>저장 {savedIds.length}</Text>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`저장한 말씀 ${savedIds.length}개 보기`}
+        accessibilityState={{ selected: category === 'saved' }}
+        onPress={() => setCategory('saved')}
+        style={[styles.filter, category === 'saved' && styles.activeFilter]}
+      >
+        <Text style={[styles.filterText, category === 'saved' && styles.activeFilterText]}>저장</Text>
+        <Text style={[styles.filterCount, category === 'saved' && styles.activeFilterText]}>{savedIds.length}</Text>
       </Pressable>
-      <Pressable accessibilityRole="button" accessibilityLabel="좋아요한 말씀 보기" accessibilityState={{ selected: category === 'liked' }}
-        onPress={() => setCategory('liked')} style={[styles.filter, category === 'liked' && styles.selected]}>
-        <LineIcon name="heart" size={17} filled={category === 'liked'} />
-        <Text style={styles.filterText}>좋아요 {likedIds.length}</Text>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`좋아요한 말씀 ${likedIds.length}개 보기`}
+        accessibilityState={{ selected: category === 'liked' }}
+        onPress={() => setCategory('liked')}
+        style={[styles.filter, category === 'liked' && styles.activeFilter]}
+      >
+        <Text style={[styles.filterText, category === 'liked' && styles.activeFilterText]}>좋아요</Text>
+        <Text style={[styles.filterCount, category === 'liked' && styles.activeFilterText]}>{likedIds.length}</Text>
       </Pressable>
     </View>
-    {!reader.ready ? <ActivityIndicator color={colors.navy} />
-      : <FlatList data={verses} keyExtractor={item => item.id} contentContainerStyle={styles.list}
-        ListFooterComponent={<View style={styles.footer}>
-          {([{ href: '/account', label: '내 계정' }, { href: '/privacy', label: '개인정보' }, { href: '/support', label: '문의' }, { href: '/licenses', label: '라이선스' }] as const).map(item => <Link key={item.href} href={item.href} asChild><Pressable accessibilityRole="link" style={styles.license}><Text style={styles.licenseText}>{item.label}</Text></Pressable></Link>)}
-        </View>}
+
+    {!reader.ready
+      ? <View style={styles.loading}><ActivityIndicator color={colors.navy} /></View>
+      : <FlatList
+        style={styles.listViewport}
+        data={verses}
+        keyExtractor={item => item.id}
+        contentContainerStyle={styles.list}
         ListEmptyComponent={<View style={styles.empty}>
-          <View style={styles.emptyIllustration}><LineIcon name={firstUse ? 'book' : category === 'saved' ? 'bookmark' : 'heart'} size={44} color={colors.navy} /></View>
-          <Text style={styles.emptyTitle}>{firstUse ? '아직 담아 둔 말씀이 없어요' : category === 'saved' ? '저장한 말씀이 아직 없어요' : '좋아요한 말씀이 아직 없어요'}</Text>
-          <Text style={styles.emptyHint}>{firstUse ? '읽다가 기억하고 싶은 구절을 저장해 보세요.' : category === 'saved' ? '다시 읽고 싶은 말씀에 책갈피를 눌러 주세요.' : '마음에 닿은 말씀에 하트를 눌러 주세요.'}</Text>
-          <Pressable accessibilityRole="button" onPress={() => router.navigate('/')} style={styles.emptyButton}><Text style={styles.emptyButtonText}>성경 읽기</Text></Pressable>
+          <Text style={styles.emptyTitle}>{category === 'saved' ? '저장한 말씀이 아직 없습니다.' : '좋아요한 말씀이 아직 없습니다.'}</Text>
+          <Pressable accessibilityRole="button" onPress={() => router.navigate('/')} style={styles.emptyAction}>
+            <Text style={styles.emptyActionText}>말씀 읽기 →</Text>
+          </Pressable>
         </View>}
         renderItem={({ item }) => <View style={styles.row}>
           <Pressable style={styles.rowBody} accessibilityRole="button" accessibilityLabel={`${reference(item)} 읽기`}
@@ -63,36 +86,48 @@ export default function MyScreen() {
           <Pressable style={styles.remove} accessibilityRole="button"
             accessibilityLabel={`${reference(item)} ${category === 'saved' ? '저장' : '좋아요'} 취소`}
             onPress={() => category === 'saved' ? reader.toggleBookmark(item.id) : reader.toggleLike(item.id)}>
-            <LineIcon name={category === 'saved' ? 'bookmark' : 'heart'} size={20} filled />
+            <LineIcon name={category === 'saved' ? 'bookmark' : 'heart'} size={19} filled />
           </Pressable>
         </View>}
       />}
+
+    <View style={styles.footer}>
+      {([{ href: '/privacy', label: '개인정보' }, { href: '/support', label: '문의' }, { href: '/licenses', label: '라이선스' }] as const).map(item =>
+        <Link key={item.href} href={item.href} asChild>
+          <Pressable accessibilityRole="link" style={styles.footerLink}>
+            <Text style={styles.footerText}>{item.label}</Text>
+          </Pressable>
+        </Link>)}
+    </View>
   </SafeAreaView>;
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.paper },
-  header: { paddingHorizontal: 26, paddingTop: 25, paddingBottom: 22 },
-  title: { fontSize: 28, fontWeight: '700', color: colors.navy },
-  subtitle: { fontSize: 13, color: colors.muted, marginTop: 8 },
-  filters: { flexDirection: 'row', paddingHorizontal: 24, gap: 12, marginBottom: 20 },
-  filter: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 16, minHeight: 44, borderRadius: 24, borderColor: colors.line, borderWidth: 1 },
-  selected: { backgroundColor: '#EAE4D8', borderColor: '#D8CFBE' },
-  filterText: { fontSize: 13, color: colors.navy },
-  list: { paddingHorizontal: 24, paddingBottom: 20, flexGrow: 1 },
-  row: { flexDirection: 'row', borderBottomWidth: 1, borderColor: colors.line, paddingVertical: 22 },
-  rowBody: { flex: 1 },
-  reference: { fontFamily: serif, fontSize: 19, color: colors.navy, marginBottom: 14 },
-  verse: { fontFamily: serif, fontSize: 16, lineHeight: 29, color: colors.navy },
-  source: { fontSize: 9, color: colors.faint, marginTop: 18 },
-  remove: { width: 36, height: 44, alignItems: 'flex-end', justifyContent: 'center', marginLeft: 10 },
-  empty: { flexGrow: 1, minHeight: 310, alignItems: 'center', justifyContent: 'center', paddingVertical: 28, gap: 18 },
-  emptyIllustration: { width: 68, height: 68, borderRadius: 34, backgroundColor: 'transparent', alignItems: 'center', justifyContent: 'center' },
-  emptyButton: { paddingHorizontal: 24, minHeight: 48, borderRadius: 24, backgroundColor: colors.navy, justifyContent: 'center', marginTop: 4 },
-  emptyButtonText: { color: '#FFFFFF', fontSize: 14, fontWeight: '600' },
-  emptyTitle: { fontSize: 17, color: colors.navy, textAlign: 'center' },
-  emptyHint: { fontSize: 13, lineHeight: 22, color: colors.muted, textAlign: 'center' },
-  footer: { flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', paddingTop: 40, marginTop: 'auto' },
-  license: { alignItems: 'center', justifyContent: 'center', minHeight: 44, paddingHorizontal: 10 },
-  licenseText: { color: colors.muted, fontSize: 10 },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, paddingTop: 18, paddingBottom: 12 },
+  title: { fontSize: 25, fontWeight: '700', color: colors.navy },
+  headerActions: { flexDirection: 'row', alignItems: 'center', gap: 2 },
+  headerAction: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  filters: { flexDirection: 'row', paddingHorizontal: 24, borderBottomWidth: StyleSheet.hairlineWidth, borderColor: colors.line },
+  filter: { flex: 1, minHeight: 48, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7, borderBottomWidth: 2, borderBottomColor: 'transparent' },
+  activeFilter: { borderBottomColor: colors.navy },
+  filterText: { color: colors.muted, fontSize: 14, fontWeight: '500' },
+  filterCount: { color: colors.faint, fontSize: 13 },
+  activeFilterText: { color: colors.navy, fontWeight: '700' },
+  listViewport: { flex: 1 },
+  list: { flexGrow: 1, paddingHorizontal: 24, paddingBottom: 12 },
+  row: { flexDirection: 'row', alignItems: 'flex-start', borderBottomWidth: StyleSheet.hairlineWidth, borderColor: colors.line, paddingVertical: 18 },
+  rowBody: { flex: 1, gap: 7 },
+  reference: { color: colors.navy, fontSize: 13, fontWeight: '700', lineHeight: 19 },
+  verse: { color: colors.navy, fontSize: 16, lineHeight: 27 },
+  source: { color: colors.faint, fontSize: 10, marginTop: 2 },
+  remove: { width: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center', marginLeft: 8 },
+  loading: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  empty: { flexGrow: 1, minHeight: 250, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 12 },
+  emptyTitle: { color: colors.muted, fontSize: 15, textAlign: 'center' },
+  emptyAction: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 12 },
+  emptyActionText: { color: colors.navy, fontSize: 14, fontWeight: '600' },
+  footer: { flexDirection: 'row', justifyContent: 'center', borderTopWidth: StyleSheet.hairlineWidth, borderColor: colors.line, paddingHorizontal: 12 },
+  footerLink: { minHeight: 42, justifyContent: 'center', paddingHorizontal: 10 },
+  footerText: { color: colors.muted, fontSize: 10 },
 });

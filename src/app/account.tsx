@@ -9,7 +9,7 @@ import { AppleLoginButton } from '../components/AppleLoginButton';
 import { signInWithApple } from '../services/apple-login';
 import { accountClient, loginUnavailableReason, signInWithProvider } from '../services/account';
 import { useReader } from '../state/ReaderState';
-import { colors, serif } from '../theme';
+import { colors } from '../theme';
 
 export default function Account() {
   const reader = useReader();
@@ -84,8 +84,8 @@ export default function Account() {
 }
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.paper }, header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 14 },
-  title: { fontFamily: serif, fontSize: 23, color: colors.navy }, close: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  title: { fontSize: 22, fontWeight: '700', color: colors.navy }, close: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   content: { padding: 28, gap: 18 }, description: { color: colors.navy, fontSize: 15, lineHeight: 25 }, small: { color: colors.muted, fontSize: 13, lineHeight: 22 },
-  button: { minHeight: 52, padding: 14, borderWidth: 1, borderColor: colors.line, borderRadius: 14, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
-  buttonText: { color: colors.navy, fontSize: 16, fontWeight: '600' }, panel: { padding: 16, gap: 14, borderWidth: 1, borderColor: colors.line, borderRadius: 14 },
+  button: { minHeight: 52, padding: 14, borderWidth: 1, borderColor: colors.line, borderRadius: 12, backgroundColor: colors.card, alignItems: 'center', justifyContent: 'center' },
+  buttonText: { color: colors.navy, fontSize: 16, fontWeight: '600' }, panel: { padding: 16, gap: 14, borderWidth: 1, borderColor: colors.line, borderRadius: 12 },
 });

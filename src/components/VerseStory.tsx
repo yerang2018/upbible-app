@@ -79,6 +79,6 @@ const styles = StyleSheet.create({
   part: { justifyContent: 'center', alignItems: 'center' },
   storyProgress: { position: 'absolute', top: 0, left: 14, right: 14, flexDirection: 'row', gap: 4, zIndex: 6 },
   segmentTouch: { flex: 1, height: 22, justifyContent: 'center' },
-  segment: { height: 3, borderRadius: 2, backgroundColor: '#D9D2C5' },
+  segment: { height: 3, borderRadius: 2, backgroundColor: colors.line },
   segmentRead: { backgroundColor: colors.navy },
 });

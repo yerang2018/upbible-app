@@ -67,13 +67,13 @@ export function ShareVerseSheet({ verse, onClose }: { verse: Verse | null; onClo
 
 const styles = StyleSheet.create({
   preview: { paddingBottom: 10 },
-  card: { backgroundColor: colors.paper, paddingHorizontal: 28, paddingVertical: 36, minHeight: 380, alignItems: 'center', borderWidth: 1, borderColor: colors.line, borderRadius: 20 },
+  card: { backgroundColor: colors.paper, paddingHorizontal: 28, paddingVertical: 36, minHeight: 380, alignItems: 'center', borderWidth: 1, borderColor: colors.line, borderRadius: 16 },
   text: { fontFamily: serif, fontSize: 23, lineHeight: 39, textAlign: 'center', color: colors.navy, marginVertical: 30 },
   reference: { fontSize: 12, color: colors.muted },
   rule: { width: 24, height: 1, backgroundColor: colors.line, marginVertical: 24 },
   brand: { fontFamily: serif, fontSize: 13, color: colors.navy, marginBottom: 8 },
   source: { fontSize: 9, color: colors.muted },
-  button: { backgroundColor: colors.navy, minHeight: 54, paddingVertical: 12, paddingHorizontal: 8, borderRadius: 18, marginVertical: 16, justifyContent: 'center', alignItems: 'center' },
+  button: { backgroundColor: colors.navy, minHeight: 54, paddingVertical: 12, paddingHorizontal: 8, borderRadius: 14, marginVertical: 16, justifyContent: 'center', alignItems: 'center' },
   buttonText: { color: colors.paper, fontSize: 15, fontWeight: '600' },
   disabled: { opacity: 0.5 },
 });

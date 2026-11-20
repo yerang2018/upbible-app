@@ -3,7 +3,7 @@ import { Link } from 'expo-router';
 import { Linking, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppText as Text } from '../components/AppText';
-import { colors, serif } from '../theme';
+import { colors } from '../theme';
 
 export default function Support() {
   return <SafeAreaView style={styles.screen}>
@@ -28,7 +28,7 @@ export default function Support() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.paper },
   content: { padding: 28, paddingBottom: 48, gap: 18, maxWidth: 680, width: '100%', alignSelf: 'center' },
-  title: { fontFamily: serif, fontSize: 26, color: colors.navy },
+  title: { fontSize: 24, fontWeight: '700', color: colors.navy },
   heading: { fontSize: 17, fontWeight: '600', color: colors.navy, marginTop: 12 },
   body: { fontSize: 15, lineHeight: 26, color: colors.navy },
   link: { color: colors.navy, fontSize: 15, lineHeight: 26, textDecorationLine: 'underline' },

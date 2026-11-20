@@ -57,7 +57,6 @@ export default function LoginScreen() {
         />
         <Text accessibilityRole="header" style={styles.name}>업바이블</Text>
         <Text style={styles.tagline}>숏폼 말고,{'\n'}하나님 말씀을 내리는 시간</Text>
-        <Text style={styles.description}>네이버 또는 카카오로 로그인하고 말씀 기록을 이어 보세요.</Text>
       </View>
 
       <View style={styles.actions}>
@@ -77,13 +76,12 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#FCFCFC' },
+  screen: { flex: 1, backgroundColor: colors.paper },
   content: { flexGrow: 1, justifyContent: 'space-between', paddingHorizontal: 28, paddingVertical: 28 },
   brand: { alignItems: 'center', paddingTop: 28 },
   logo: { width: 92, height: 92, borderRadius: 24, backgroundColor: '#FFFFFF' },
   name: { color: colors.navy, fontFamily: serif, fontSize: 30, fontWeight: '700', marginTop: 18 },
   tagline: { color: colors.navy, fontFamily: serif, fontSize: 22, lineHeight: 34, textAlign: 'center', marginTop: 24 },
-  description: { color: colors.muted, fontSize: 14, lineHeight: 22, textAlign: 'center', marginTop: 12 },
   actions: { gap: 12, paddingTop: 36 },
   providerButton: { minHeight: 56, borderRadius: 14, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 18 },
   providerButtonText: { color: colors.navy, fontSize: 16, fontWeight: '700' },

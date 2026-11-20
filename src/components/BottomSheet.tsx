@@ -6,7 +6,7 @@ import { Animated, Keyboard, KeyboardAvoidingView, Modal, PanResponder, Platform
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { LineIcon } from './LineIcon';
-import { colors, serif } from '../theme';
+import { colors } from '../theme';
 
 export function BottomSheet({ visible, title, onClose, children }: PropsWithChildren<{
   visible: boolean; title: string; onClose: () => void;
@@ -58,10 +58,10 @@ export function BottomSheet({ visible, title, onClose, children }: PropsWithChil
 
 const styles = StyleSheet.create({
   overlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: '#1F2A4455' },
-  sheet: { backgroundColor: colors.paper, borderTopLeftRadius: 30, borderTopRightRadius: 30, maxHeight: '85%', paddingHorizontal: 24 },
+  sheet: { backgroundColor: colors.paper, borderTopLeftRadius: 24, borderTopRightRadius: 24, maxHeight: '85%', paddingHorizontal: 24 },
   handleTouch: { height: 36, alignItems: 'center', justifyContent: 'center' },
   handle: { width: 36, height: 4, borderRadius: 2, backgroundColor: colors.line, alignSelf: 'center' },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 20 },
-  title: { flex: 1, flexShrink: 1, fontFamily: serif, fontSize: 23, color: colors.navy },
+  title: { flex: 1, flexShrink: 1, fontSize: 20, fontWeight: '700', color: colors.navy },
   close: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
 });
