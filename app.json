@@ -8,7 +8,7 @@
     "backgroundColor": "#F7F3EA",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.kangducheol.malsseumfeed",
       "buildNumber": "1",
       "usesAppleSignIn": true

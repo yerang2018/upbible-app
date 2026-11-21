@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 
+import { deleteOwnAccount } from '../services/delete-account';
 import { accountClient } from '../services/account';
 import { readRemoteRecord, writeRemoteRecord } from '../services/reader-sync';
 import { planReaderSync, type SyncSnapshot, type SyncPlan } from '../domain/reader-sync-plan';
@@ -160,8 +161,7 @@ export function ReaderProvider({ children }: PropsWithChildren) {
     busyRef.current = true; setSyncBusy(true);
     try {
       await writeQueue.current;
-      const { error } = await client.rpc('delete_own_reader_account', { expected_user_id: id });
-      if (error) throw error;
+      await deleteOwnAccount(client, id);
       const keys = await AsyncStorage.getAllKeys();
       await AsyncStorage.multiRemove(keys.filter(key => key === keyFor(id) || key.startsWith(`${keyFor(id)}/`))); 
       if (epoch.current === generation && owner.current === id) {

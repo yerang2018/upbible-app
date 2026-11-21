@@ -7,7 +7,7 @@ import { ActivityIndicator, FlatList, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { LineIcon } from '../components/LineIcon';
-import { attribution, bible } from '../data/bible';
+import { bible } from '../data/bible';
 import { isInReadingScope } from '../data/reading-scope';
 import { reference } from '../domain/bible-model';
 import type { Verse } from '../domain/bible-model';
@@ -81,7 +81,6 @@ export default function MyScreen() {
             onPress={() => { reader.setPosition(item.id); router.navigate('/'); }}>
             <Text style={styles.reference}>{reference(item)}</Text>
             <Text style={styles.verse}>{item.text}</Text>
-            <Text style={styles.source}>{attribution}</Text>
           </Pressable>
           <Pressable style={styles.remove} accessibilityRole="button"
             accessibilityLabel={`${reference(item)} ${category === 'saved' ? '저장' : '좋아요'} 취소`}
@@ -120,7 +119,6 @@ const styles = StyleSheet.create({
   rowBody: { flex: 1, gap: 7 },
   reference: { color: colors.navy, fontSize: 13, fontWeight: '700', lineHeight: 19 },
   verse: { color: colors.navy, fontSize: 16, lineHeight: 27 },
-  source: { color: colors.faint, fontSize: 10, marginTop: 2 },
   remove: { width: 44, minHeight: 44, alignItems: 'center', justifyContent: 'center', marginLeft: 8 },
   loading: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   empty: { flexGrow: 1, minHeight: 250, alignItems: 'center', justifyContent: 'center', padding: 24, gap: 12 },

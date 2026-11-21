@@ -4,6 +4,8 @@ import { ActivityIndicator, Image, ScrollView, StyleSheet, View } from 'react-na
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppText as Text } from '../components/AppText';
+import { AppleLoginButton } from '../components/AppleLoginButton';
+import { signInWithApple } from '../services/apple-login';
 import { Pressable } from '../components/Touch';
 import { loginUnavailableReason, signInWithProvider } from '../services/account';
 import { useReader } from '../state/ReaderState';
@@ -30,6 +32,20 @@ export default function LoginScreen() {
       else router.replace('/');
     } catch {
       setMessage('로그인하지 못했습니다. 잠시 후 다시 시도해 주세요.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function appleLogin() {
+    setBusy(true);
+    setMessage('');
+    try {
+      const result = await signInWithApple();
+      if (result === 'cancelled') setMessage('로그인을 취소했습니다.');
+      else router.replace('/');
+    } catch {
+      setMessage('Apple 로그인하지 못했습니다. 잠시 후 다시 시도해 주세요.');
     } finally {
       setBusy(false);
     }
@@ -62,6 +78,7 @@ export default function LoginScreen() {
       <View style={styles.actions}>
         {button('네이버로 로그인', 'custom:naver', '#03C75A')}
         {button('카카오로 로그인', 'kakao', '#FEE500')}
+        <AppleLoginButton disabled={disabled} onPress={appleLogin} />
         {!reader.ready && <ActivityIndicator accessibilityLabel="로그인 상태 확인 중" color={colors.navy} />}
         {reader.storageError && <Text accessibilityLiveRegion="polite" style={styles.notice}>기기 기록을 확인하지 못했습니다. 기존 기록을 보존하기 위해 앱을 다시 열어 주세요.</Text>}
         {message ? <Text accessibilityLiveRegion="polite" style={styles.notice}>{message}</Text> : null}
