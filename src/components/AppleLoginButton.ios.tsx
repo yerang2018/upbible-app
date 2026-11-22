@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { StyleSheet } from 'react-native';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import Constants from 'expo-constants';
+import { AppText as Text } from './AppText';
+import { Pressable } from './Touch';
 import type { AppleLoginButtonProps } from './AppleLoginButton';
 
-export function AppleLoginButton({ disabled, onPress }: AppleLoginButtonProps) {
+// 네이버·카카오 버튼과 같은 크기·글자로 맞춘 Apple 로그인 버튼입니다. Apple 디자인 지침(검정 배경, Apple 로고, 흰 글자)을 따릅니다.
+export function AppleLoginButton({ disabled, dimmed, onPress }: AppleLoginButtonProps) {
   const [available, setAvailable] = useState(false);
   useEffect(() => {
     if (Constants.expoConfig?.extra?.appleSignInDisabled) return;
@@ -14,13 +17,20 @@ export function AppleLoginButton({ disabled, onPress }: AppleLoginButtonProps) {
     return () => { active = false; };
   }, []);
   if (!available) return null;
-  return <View pointerEvents={disabled ? 'none' : 'auto'} style={{ opacity: disabled ? 0.5 : 1 }}>
-    <AppleAuthentication.AppleAuthenticationButton
-      buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
-      buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
-      cornerRadius={14}
-      style={{ width: '100%', height: 52 }}
-      onPress={() => { void onPress(); }}
-    />
-  </View>;
+  return <Pressable
+    accessibilityRole="button"
+    accessibilityLabel="Apple로 로그인"
+    accessibilityState={{ disabled }}
+    disabled={disabled}
+    onPress={() => { void onPress(); }}
+    style={[styles.button, dimmed && styles.dimmed]}
+  >
+    <Text style={styles.text}>{'\uF8FF'}  Apple로 로그인</Text>
+  </Pressable>;
 }
+
+const styles = StyleSheet.create({
+  button: { minHeight: 56, borderRadius: 14, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 18, backgroundColor: '#000000' },
+  dimmed: { opacity: 0.55 },
+  text: { color: '#FFFFFF', fontSize: 16, fontWeight: '700' },
+});

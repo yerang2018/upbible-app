@@ -42,7 +42,10 @@ export default function Account() {
   async function confirmed() {
     const action = confirm; if (!action || !reader.userId) return; setConfirm(null); setBusy(true); setMessage('');
     try { if (action === 'import') await reader.importGuest(); else { await reader.deleteAccount(); setMessage('업바이블 계정과 서버 기록을 삭제했습니다. 로그인 제공자와의 연결 해제는 아래 안내에서 별도로 진행해 주세요.'); } }
-    catch { setMessage('처리를 완료하지 못했습니다. 네트워크와 계정 상태를 확인해 주세요.'); }
+    catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
+      setMessage(detail === 'cancelled' ? '회원 탈퇴를 취소했습니다.' : `처리를 완료하지 못했습니다. 네트워크와 계정 상태를 확인해 주세요. (${detail.slice(0, 160)})`);
+    }
     finally { setBusy(false); }
   }
   const button = (label: string, action: () => void, style?: object, blocked = false) => <Pressable accessibilityRole="button" disabled={disabled || blocked} onPress={action} style={[styles.button, style, (disabled || blocked) && { opacity: 0.5 }]}><Text style={styles.buttonText}>{label}</Text></Pressable>;

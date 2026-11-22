@@ -16,6 +16,7 @@ type Provider = 'custom:naver' | 'kakao';
 export default function LoginScreen() {
   const reader = useReader();
   const [busy, setBusy] = useState(false);
+  const [active, setActive] = useState<Provider | 'apple' | null>(null);
   const [message, setMessage] = useState('');
   const unavailable = loginUnavailableReason();
   const disabled = busy || !reader.ready || reader.storageError || Boolean(unavailable);
@@ -23,7 +24,7 @@ export default function LoginScreen() {
   if (reader.ready && reader.userId) return <Redirect href="/" />;
 
   async function login(provider: Provider) {
-    setBusy(true);
+    setBusy(true); setActive(provider);
     setMessage('');
     try {
       const result = await signInWithProvider(provider);
@@ -33,12 +34,12 @@ export default function LoginScreen() {
     } catch {
       setMessage('로그인하지 못했습니다. 잠시 후 다시 시도해 주세요.');
     } finally {
-      setBusy(false);
+      setBusy(false); setActive(null);
     }
   }
 
   async function appleLogin() {
-    setBusy(true);
+    setBusy(true); setActive('apple');
     setMessage('');
     try {
       const result = await signInWithApple();
@@ -47,7 +48,7 @@ export default function LoginScreen() {
     } catch {
       setMessage('Apple 로그인하지 못했습니다. 잠시 후 다시 시도해 주세요.');
     } finally {
-      setBusy(false);
+      setBusy(false); setActive(null);
     }
   }
 
@@ -57,7 +58,7 @@ export default function LoginScreen() {
       accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={() => { void login(provider); }}
-      style={[styles.providerButton, { backgroundColor }, disabled && styles.disabled]}
+      style={[styles.providerButton, { backgroundColor }, (disabled && !busy || active === provider) && styles.disabled]}
     >
       <Text style={styles.providerButtonText}>{label}</Text>
     </Pressable>
@@ -78,7 +79,7 @@ export default function LoginScreen() {
       <View style={styles.actions}>
         {button('네이버로 로그인', 'custom:naver', '#03C75A')}
         {button('카카오로 로그인', 'kakao', '#FEE500')}
-        <AppleLoginButton disabled={disabled} onPress={appleLogin} />
+        <AppleLoginButton disabled={disabled} dimmed={disabled && !busy || active === 'apple'} onPress={appleLogin} />
         {!reader.ready && <ActivityIndicator accessibilityLabel="로그인 상태 확인 중" color={colors.navy} />}
         {reader.storageError && <Text accessibilityLiveRegion="polite" style={styles.notice}>기기 기록을 확인하지 못했습니다. 기존 기록을 보존하기 위해 앱을 다시 열어 주세요.</Text>}
         {message ? <Text accessibilityLiveRegion="polite" style={styles.notice}>{message}</Text> : null}

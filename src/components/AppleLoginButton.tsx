@@ -1,5 +1,6 @@
 export type AppleLoginButtonProps = {
   disabled: boolean;
+  dimmed?: boolean;
   onPress: () => Promise<void>;
 };
 
