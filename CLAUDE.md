@@ -78,3 +78,8 @@ npm run bible:check  # 성경 데이터 검사
 ## GitHub 저장소
 
 - https://github.com/yerang2018/malsseum-feed (private). 맥북의 이 폴더는 이미 연결되어 있어 `git pull`, `git push`가 바로 됩니다(GitHub CLI는 `~/.local/bin/gh`).
+
+## 커밋·푸시 규칙 (2026-11-23 예랑님 요청)
+- 코드를 고치면 **항상 커밋하고 GitHub에 푸시까지** 한다(묻지 않고). 커밋 메시지는 한국어.
+- 클라우드 세션에서는 지정된 작업용 브랜치에만 푸시한다. 메인 브랜치 병합은 예랑님이 요청할 때만.
+- 푸시 뒤 예랑님께 "무엇을 커밋·푸시했는지" 한 줄로 알린다.
