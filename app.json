@@ -3,20 +3,20 @@
     "name": "업바이블",
     "slug": "malsseum-feed",
     "scheme": "malsseumfeed",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "backgroundColor": "#F7F3EA",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.kangducheol.malsseumfeed",
-      "buildNumber": "2",
+      "buildNumber": "3",
       "usesAppleSignIn": true
     },
     "android": {
       "predictiveBackGestureEnabled": false,
       "package": "com.kangducheol.malsseumfeed",
-      "versionCode": 1,
+      "versionCode": 2,
       "softwareKeyboardLayoutMode": "resize"
     },
     "plugins": [
@@ -25,7 +25,8 @@
       "expo-font",
       "expo-sharing",
       "expo-apple-authentication",
-      ["expo-secure-store", { "configureAndroidBackup": true, "faceIDPermission": false }]
+      ["expo-secure-store", { "configureAndroidBackup": true, "faceIDPermission": false }],
+      ["expo-notifications", { "enableRemoteNotifications": false }]
     ],
     "extra": {
       "router": {

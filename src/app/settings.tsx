@@ -4,9 +4,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppText as Text } from '../components/AppText';
 import { Pressable } from '../components/Touch';
 import { backgrounds, useAppearance } from '../state/Appearance';
+import { reminderLabel, useDailyReminder } from '../state/DailyReminder';
 import { colors } from '../theme';
 export default function Settings() {
   const { background, setBackground, ready, error } = useAppearance();
+  const reminder = useDailyReminder();
+  const shift = (minutes: number) => {
+    const total = (reminder.setting.hour * 60 + reminder.setting.minute + minutes + 24 * 60) % (24 * 60);
+    reminder.setTime(Math.floor(total / 60), total % 60);
+  };
   return <SafeAreaView style={{ flex: 1, backgroundColor: background }}>
     <ScrollView contentContainerStyle={styles.content}>
       <View style={styles.header}><Text style={styles.title}>설정</Text><Pressable accessibilityRole="button" onPress={() => router.canGoBack() ? router.back() : router.replace('/my')} style={styles.close}><Text>닫기</Text></Pressable></View>
@@ -25,6 +31,34 @@ export default function Settings() {
       <Text style={styles.heading}>성경 본문 크기</Text>
       <Text style={styles.body}>성경 읽기 화면 왼쪽 위의 ‘가가가’에서 본문을 보며 바로 조절하세요. 버튼과 메뉴 크기는 유지됩니다.</Text>
       <Pressable accessibilityRole="button" onPress={() => router.navigate('/')} style={styles.readButton}><Text style={{ color: colors.navy }}>성경 읽으며 크기 조절하기 →</Text></Pressable>
+
+      <Text style={styles.heading}>하루 한 절 알림</Text>
+      <Text style={styles.body}>정한 시각에 이 기기에서 한 절 읽기를 알려 드립니다. 앱을 열어 두지 않아도 울립니다.</Text>
+      <View style={styles.settingRow}>
+        <Text style={styles.settingLabel}>알림 받기</Text>
+        <Pressable accessibilityRole="switch" accessibilityLabel="하루 한 절 알림 받기"
+          accessibilityState={{ checked: reminder.setting.enabled, disabled: !reminder.ready || reminder.busy }}
+          disabled={!reminder.ready || reminder.busy} hitSlop={8}
+          onPress={() => reminder.setEnabled(!reminder.setting.enabled)}
+          style={[styles.switch, reminder.setting.enabled && styles.switchOn]}>
+          <View style={[styles.knob, reminder.setting.enabled && styles.knobOn]} />
+        </Pressable>
+      </View>
+      {reminder.setting.enabled && <View style={styles.settingRow}>
+        <Text style={styles.settingLabel}>알림 시각</Text>
+        <View style={styles.timeControl}>
+          <Pressable accessibilityRole="button" accessibilityLabel="알림 시각 30분 앞당기기"
+            disabled={reminder.busy} onPress={() => shift(-30)} style={styles.timeButton}>
+            <Text style={styles.timeButtonText}>−</Text>
+          </Pressable>
+          <Text style={styles.timeValue}>{reminderLabel(reminder.setting)}</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel="알림 시각 30분 늦추기"
+            disabled={reminder.busy} onPress={() => shift(30)} style={styles.timeButton}>
+            <Text style={styles.timeButtonText}>+</Text>
+          </Pressable>
+        </View>
+      </View>}
+      {reminder.message ? <Text role="alert" style={styles.notice}>{reminder.message}</Text> : null}
     </ScrollView>
   </SafeAreaView>;
 }
@@ -42,4 +76,16 @@ const styles = StyleSheet.create({
   check: { color: colors.navy, fontSize: 14, fontWeight: '700' },
   swatchName: { color: colors.muted, fontSize: 12 },
   selectedName: { color: colors.navy, fontWeight: '700' },
+  settingRow: { minHeight: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: 16, backgroundColor: colors.card, borderRadius: 12, borderWidth: 1, borderColor: colors.line },
+  settingLabel: { color: colors.navy, fontSize: 15, fontWeight: '500' },
+  switch: { width: 52, height: 32, borderRadius: 16, padding: 3, backgroundColor: '#E5E7EB' },
+  switchOn: { backgroundColor: colors.navy },
+  knob: { width: 26, height: 26, borderRadius: 13, backgroundColor: colors.paper },
+  knobOn: { alignSelf: 'flex-end' },
+  timeControl: { flexDirection: 'row', alignItems: 'center', gap: 2, borderWidth: 1, borderColor: colors.line, borderRadius: 12 },
+  timeButton: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  timeButtonText: { color: colors.navy, fontSize: 20, fontWeight: '600' },
+  timeValue: { minWidth: 92, textAlign: 'center', color: colors.navy, fontSize: 15, fontWeight: '600' },
+  notice: { color: colors.navy, fontSize: 13, lineHeight: 20 },
 });

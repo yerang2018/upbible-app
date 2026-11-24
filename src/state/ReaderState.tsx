@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { deleteOwnAccount } from '../services/delete-account';
@@ -9,9 +9,15 @@ import { planReaderSync, type SyncSnapshot, type SyncPlan } from '../domain/read
 import { bible } from '../data/bible';
 import { restoreReaderRecord, preferredFontLevel } from '../domain/reader-preferences';
 import type { FontLevel, ReaderRecord } from '../domain/reader-preferences';
+import {
+  dateKeyOf, emptyReadingLog, logVerseRead, readingStreak, restoreReadingLog, todayVerseCount,
+} from '../domain/reading-log';
+import type { ReadingLog } from '../domain/reading-log';
 
 const fontPreferenceKey = '@malsseum-feed/font-level/v1';
 const storageKey = '@malsseum-feed/reader/v1';
+// 오늘 읽은 절 수·연속 일수는 계정 기록과 따로 두어 서버 병합과 얽히지 않게 합니다.
+const readingLogKey = '@malsseum-feed/reading-log/v1';
 type ReaderState = ReaderRecord & {
   ready: boolean;
   userId: string | null;
@@ -28,6 +34,10 @@ type ReaderState = ReaderRecord & {
   setFontLevel: (level: FontLevel) => void;
   addComment: (verseId: string, text: string) => void;
   deleteComment: (id: string) => void;
+  readingLog: ReadingLog;
+  todayCount: number;
+  streak: number;
+  recordRead: (id: string) => void;
 };
 const initial: ReaderRecord = { position: bible.verses[0].id, bookmarks: [], likes: [], fontLevel: 3, comments: [] };
 const Context = createContext<ReaderState | null>(null);
@@ -45,9 +55,13 @@ export function ReaderProvider({ children }: PropsWithChildren) {
   const [syncMessage, setSyncMessage] = useState('');
   const [syncChoice, setSyncChoice] = useState<Exclude<SyncPlan, { kind: 'write' }> | null>(null);
   const [base, setBase] = useState<SyncSnapshot | null>(null);
+  const [readingLog, setReadingLog] = useState<ReadingLog>(() => emptyReadingLog(dateKeyOf(new Date())));
+  const logWritable = useRef(false);
+  const logQueue = useRef(Promise.resolve());
   const stateRef = useRef(state);
   useEffect(() => { stateRef.current = state; }, [state]);
   const keyFor = (id: string | null) => id ? `${storageKey}/account/${id}` : storageKey;
+  const logKeyFor = (id: string | null) => id ? `${readingLogKey}/account/${id}` : readingLogKey;
   const normalize = (record: unknown) => restoreReaderRecord(record, initial.position, id => Boolean(bible.find(id))); 
   const writeQueue = useRef(Promise.resolve());
 
@@ -100,6 +114,30 @@ export function ReaderProvider({ children }: PropsWithChildren) {
     }).catch(() => { if (active) { setStorageError(true); setReady(true); } });
     return () => { active = false; subscription.unsubscribe(); };
   }, []);
+
+  // 읽기 기록은 계정이 정해진 뒤 그 계정의 것을 불러옵니다.
+  useEffect(() => {
+    let active = true;
+    logWritable.current = false;
+    AsyncStorage.getItem(logKeyFor(userId)).then(value => {
+      if (!active) return;
+      let parsed: unknown = null;
+      try { parsed = value ? JSON.parse(value) : null; } catch { parsed = null; }
+      setReadingLog(restoreReadingLog(parsed, dateKeyOf(new Date())));
+    }).catch(() => {
+      if (!active) return;
+      setReadingLog(emptyReadingLog(dateKeyOf(new Date())));
+      setStorageError(true);
+    }).finally(() => { if (active) logWritable.current = true; });
+    return () => { active = false; };
+  }, [userId]);
+
+  useEffect(() => {
+    if (!logWritable.current) return;
+    const value = JSON.stringify(readingLog);
+    logQueue.current = logQueue.current.then(() => AsyncStorage.setItem(logKeyFor(userId), value))
+      .catch(() => setStorageError(true));
+  }, [readingLog, userId]);
 
   useEffect(() => {
     if (!ready || !writable.current) return;
@@ -163,7 +201,7 @@ export function ReaderProvider({ children }: PropsWithChildren) {
       await writeQueue.current;
       await deleteOwnAccount(client, id);
       const keys = await AsyncStorage.getAllKeys();
-      await AsyncStorage.multiRemove(keys.filter(key => key === keyFor(id) || key.startsWith(`${keyFor(id)}/`))); 
+      await AsyncStorage.multiRemove(keys.filter(key => key === keyFor(id) || key.startsWith(`${keyFor(id)}/`) || key === logKeyFor(id))); 
       if (epoch.current === generation && owner.current === id) {
         writable.current = false;
         const { error: signOutError } = await client.auth.signOut({ scope: 'local' });
@@ -172,9 +210,17 @@ export function ReaderProvider({ children }: PropsWithChildren) {
     } finally { if (epoch.current === generation) { busyRef.current = false; setSyncBusy(false); } }
   }
 
+  const recordRead = useCallback((id: string) => {
+    if (!writable.current || busyRef.current) return;
+    if (!bible.find(id)) return;
+    const date = dateKeyOf(new Date());
+    setReadingLog(current => logVerseRead(current, id, date));
+  }, []);
   const setPosition = useCallback((id: string) => {
     if (!writable.current || busyRef.current) return;
     if (!bible.find(id)) return;
+    const date = dateKeyOf(new Date());
+    setReadingLog(current => logVerseRead(current, id, date));
     setState(current => current.position === id ? current : { ...current, position: id });
   }, []);
   const toggleBookmark = useCallback((id: string) => {
@@ -208,7 +254,11 @@ export function ReaderProvider({ children }: PropsWithChildren) {
     setState(current => ({ ...current, comments: current.comments.filter(comment => comment.id !== id) }));
   }, []);
 
-  return <Context.Provider value={{ ...state, ready, userId, syncBusy, syncMessage, syncChoice, syncRecords, importGuest, deleteAccount, storageError, setPosition, toggleBookmark, toggleLike, setFontLevel, addComment, deleteComment }}>
+  const today = dateKeyOf(new Date());
+  const todayCount = useMemo(() => todayVerseCount(readingLog, today), [readingLog, today]);
+  const streak = useMemo(() => readingStreak(readingLog, today), [readingLog, today]);
+
+  return <Context.Provider value={{ ...state, ready, userId, syncBusy, syncMessage, syncChoice, syncRecords, importGuest, deleteAccount, storageError, setPosition, toggleBookmark, toggleLike, setFontLevel, addComment, deleteComment, readingLog, todayCount, streak, recordRead }}>
     {children}
   </Context.Provider>;
 }
