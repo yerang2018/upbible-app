@@ -2,7 +2,7 @@ import { useAppearance } from '../state/Appearance';
 import { Pressable } from '../components/Touch';
 import { AppText as Text } from '../components/AppText';
 import { Link, useFocusEffect } from 'expo-router';
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Animated, FlatList, StyleSheet, View, } from 'react-native';
 import type { FlatListProps, NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -17,13 +17,17 @@ import { attribution } from '../data/bible';
 import { feedPositionOf, feedVerses } from '../data/reading-scope';
 import { reference } from '../domain/bible-model';
 import type { Verse } from '../domain/bible-model';
+import { recommendedIds } from '../domain/feed-order';
+import { dateKeyOf } from '../domain/reading-log';
 import { fontSizes } from '../domain/reader-preferences';
 import type { FontLevel } from '../domain/reader-preferences';
 import { useReader } from '../state/ReaderState';
+import { consumeVerseJump } from '../state/verse-jump';
 import { colors } from '../theme';
 
 const viewabilityConfig = { itemVisiblePercentThreshold: 70, minimumViewTime: 120 };
 type ViewabilityEvent = Parameters<NonNullable<FlatListProps<Verse>['onViewableItemsChanged']>>[0];
+type FeedMode = 'order' | 'recommend';
 
 type PageProps = {
   item: Verse; width: number; height: number; fontLevel: FontLevel; liked: boolean; saved: boolean; commentCount: number;
@@ -108,56 +112,103 @@ const VersePage = memo(function VersePage({ item, width, height, fontLevel, like
 
 type Sheet = 'location' | 'search' | null;
 
+const feedOptions = [
+  { mode: 'order', label: '순서대로', accessibilityLabel: '순서대로 읽기' },
+  { mode: 'recommend', label: '추천', accessibilityLabel: '추천 순서로 읽기' },
+] as const satisfies readonly { mode: FeedMode; label: string; accessibilityLabel: string }[];
+
 export default function ShortsScreen() {
   const reader = useReader();
   const { background } = useAppearance();
-  const { setPosition, toggleLike, toggleBookmark, fontLevel, likes, bookmarks, ready } = reader;
+  const { setPosition, toggleLike, toggleBookmark, fontLevel, likes, bookmarks, ready, recordRead } = reader;
   const [size, setSize] = useState({ width: 0, height: 0 });
   const [sheet, setSheet] = useState<Sheet>(null);
   const [sheetVerse, setSheetVerse] = useState<Verse | null>(null);
   const [shareVerse, setShareVerse] = useState<Verse | null>(null);
   const [commentVerse, setCommentVerse] = useState<Verse | null>(null);
+  const [mode, setMode] = useState<FeedMode>('order');
+  const [today, setToday] = useState(() => dateKeyOf(new Date()));
+  const [recommendAnchor, setRecommendAnchor] = useState<string | null>(null);
   const list = useRef<FlatList<Verse>>(null);
   const visibleId = useRef<string | null>(null);
   const focused = useRef(false);
-  const position = feedPositionOf(reader.position);
-  const current = feedVerses[position];
+
+  const verseOf = useMemo(() => new Map(feedVerses.map(verse => [verse.id, verse])), []);
+  // 추천 순서는 날짜를 씨앗으로 만들어 같은 날에는 그대로 이어집니다.
+  const recommended = useMemo(() => recommendedIds(feedVerses.map(verse => verse.id), today), [today]);
+  const recommendPosition = useMemo(() => new Map(recommended.map((id, index) => [id, index])), [recommended]);
+  const recommendVerses = useMemo(() => recommended.flatMap(id => {
+    const verse = verseOf.get(id);
+    return verse ? [verse] : [];
+  }), [recommended, verseOf]);
+  const verses = mode === 'order' ? feedVerses : recommendVerses;
+  const anchorId = mode === 'order' ? reader.position
+    : recommendAnchor && recommendPosition.has(recommendAnchor) ? recommendAnchor : recommended[0];
+  const position = mode === 'order' ? feedPositionOf(anchorId) : recommendPosition.get(anchorId) ?? 0;
+  const current = verses[position] ?? feedVerses[0];
   const activeVerse = sheetVerse ?? current;
+
+  const modeRef = useRef(mode);
+  useEffect(() => { modeRef.current = mode; }, [mode]);
+
+  // 순서대로 모드에서만 읽던 위치를 저장합니다. 추천 모드는 화면 안에서만 기억합니다.
+  const applyVisible = useCallback((verse: Verse) => {
+    visibleId.current = verse.id;
+    if (modeRef.current === 'order') setPosition(verse.id);
+    else { setRecommendAnchor(verse.id); recordRead(verse.id); }
+  }, [setPosition, recordRead]);
 
   // MY 목록에서 선택한 구절도 쇼츠 탭으로 돌아오는 순간 정확히 맞춥니다.
   useFocusEffect(useCallback(() => {
     focused.current = true;
-    if (ready && size.height && visibleId.current !== reader.position) {
-      visibleId.current = current.id;
-      setPosition(current.id);
+    const todayNow = dateKeyOf(new Date());
+    if (todayNow !== today) setToday(todayNow);
+    const requested = consumeVerseJump();
+    // MY·검색에서 고른 구절은 순서대로 모드의 그 자리로 열립니다.
+    if (requested && verseOf.has(requested)) {
+      if (modeRef.current !== 'order') setMode('order');
+      else if (ready && size.height) {
+        visibleId.current = requested;
+        list.current?.scrollToIndex({ index: feedPositionOf(requested), animated: false });
+      }
+      return () => { focused.current = false; };
+    }
+    if (modeRef.current === 'order' && ready && size.height && visibleId.current !== reader.position) {
+      visibleId.current = reader.position;
       list.current?.scrollToIndex({ index: feedPositionOf(reader.position), animated: false });
     }
     return () => { focused.current = false; };
-  }, [ready, reader.position, current.id, setPosition, size.height]));
+  }, [ready, reader.position, today, size.height, verseOf]));
 
-  const jump = useCallback((index: number) => {
-    const verse = feedVerses[index];
-    if (!verse) return;
-    visibleId.current = verse.id;
-    setPosition(verse.id);
+  const jump = useCallback((id: string) => {
+    const index = modeRef.current === 'order' ? feedPositionOf(id) : recommendPosition.get(id) ?? 0;
+    if (modeRef.current === 'order') setPosition(id);
+    else setRecommendAnchor(id);
+    visibleId.current = id;
     list.current?.scrollToIndex({ index, animated: false });
     setSheet(null);
-  }, [setPosition]);
+  }, [recommendPosition, setPosition]);
+
+  const selectMode = useCallback((next: FeedMode) => {
+    if (next === modeRef.current) return;
+    setSheet(null);
+    setMode(next);
+  }, []);
 
   const onPageSettled = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
     if (!focused.current || !size.height) return;
-    const index = Math.max(0, Math.min(feedVerses.length - 1,
+    const index = Math.max(0, Math.min(verses.length - 1,
       Math.round(event.nativeEvent.contentOffset.y / size.height)));
-    visibleId.current = feedVerses[index].id;
-    setPosition(visibleId.current);
-  }, [setPosition, size.height]);
+    const verse = verses[index];
+    if (verse) applyVisible(verse);
+  }, [applyVisible, size.height, verses]);
 
   // 목록이 유지되는 동안 같은 콜백을 사용하여 개발 중 새로고침에도 넘김을 유지합니다.
   const [onVisibleChanged] = useState<NonNullable<FlatListProps<Verse>['onViewableItemsChanged']>>(() =>
     ({ viewableItems }: ViewabilityEvent) => {
       if (!focused.current) return;
       const visible = viewableItems.find(item => item.isViewable);
-      if (visible) { visibleId.current = visible.item.id; setPosition(visible.item.id); }
+      if (visible) applyVisible(visible.item);
     });
 
   const openChapters = useCallback((verse: Verse) => { setSheetVerse(verse); setSheet('location'); }, []);
@@ -177,7 +228,7 @@ export default function ShortsScreen() {
       setSize(previous => previous.width === width && previous.height === height ? previous : { width, height });
     }}>
       {!ready || size.height === 0 ? <ActivityIndicator color={colors.navy} style={styles.loading} />
-        : <FlatList key={`${size.width}:${size.height}`} ref={list} data={feedVerses}
+        : <FlatList key={`${size.width}:${size.height}:${mode}`} ref={list} data={verses}
           keyExtractor={item => item.id} renderItem={renderItem} initialScrollIndex={position}
           getItemLayout={(_, index) => ({ index, length: size.height, offset: size.height * index })}
           pagingEnabled snapToInterval={size.height} disableIntervalMomentum decelerationRate="fast"
@@ -193,17 +244,24 @@ export default function ShortsScreen() {
           <Text style={styles.searchLabel}>성경 검색</Text>
         </Pressable>
       </View>
+      <View style={styles.modeSwitch} accessibilityRole="radiogroup" accessibilityLabel="읽기 방식">
+        {feedOptions.map(option => <Pressable key={option.mode} accessibilityRole="radio"
+          accessibilityLabel={option.accessibilityLabel} accessibilityState={{ checked: mode === option.mode }}
+          hitSlop={{ top: 8, bottom: 8, left: 2, right: 2 }} onPress={() => selectMode(option.mode)}
+          style={[styles.modeOption, mode === option.mode && styles.modeOptionActive]}>
+          <Text style={[styles.modeLabel, mode === option.mode && styles.modeLabelActive]}>{option.label}</Text>
+        </Pressable>)}
+      </View>
     </View>
 
     {sheet === 'location' && <BibleLocationSheet current={activeVerse} verses={feedVerses}
       scopeNote="구약·신약 66권의 모든 장과 절을 선택할 수 있습니다."
       onClose={() => setSheet(null)} onSelect={id => {
-        const index = feedVerses.findIndex(verse => verse.id === id);
-        if (index >= 0) jump(index);
+        if (verseOf.has(id)) jump(id);
       }} />}
 
     {sheet === 'search' && <BibleLocationSheet current={current} verses={feedVerses} searchable
-      onClose={() => setSheet(null)} onSelect={id => jump(feedPositionOf(id))} />}
+      onClose={() => setSheet(null)} onSelect={id => jump(id)} />}
 
     <ShareVerseSheet verse={shareVerse} onClose={() => setShareVerse(null)} />
     <CommentsSheet verse={commentVerse} onClose={() => setCommentVerse(null)} />
@@ -215,12 +273,19 @@ const styles = StyleSheet.create({
   feed: { flex: 1 },
   loading: { flex: 1 },
   page: { backgroundColor: colors.paper },
-  feedHeader: { position: 'absolute', top: 26, left: 18, right: 18, zIndex: 5,
+  feedHeader: { position: 'absolute', top: 28, left: 18, right: 18, zIndex: 5,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
   searchControl: { flexDirection: 'row', gap: 6, minHeight: 48, paddingHorizontal: 16, paddingVertical: 7,
     alignItems: 'center', justifyContent: 'center', borderRadius: 14,
     backgroundColor: colors.card, borderColor: colors.line, borderWidth: 1 },
   searchLabel: { color: colors.navy, fontSize: 14, fontWeight: '600' },
+  modeSwitch: { position: 'absolute', top: 82, right: 18, height: 28, padding: 2, gap: 2, zIndex: 5,
+    flexDirection: 'row', alignItems: 'center', borderRadius: 14,
+    backgroundColor: colors.card, borderColor: colors.line, borderWidth: 1 },
+  modeOption: { height: 24, paddingHorizontal: 9, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  modeOptionActive: { backgroundColor: colors.navy },
+  modeLabel: { color: colors.muted, fontSize: 11, fontWeight: '500' },
+  modeLabelActive: { color: colors.paper, fontWeight: '700' },
   actionRail: { position: 'absolute', right: 12, alignItems: 'center' },
   action: { alignItems: 'center', width: 60, minHeight: 68, gap: 0 },
   actionCircle: { alignItems: 'center', justifyContent: 'center' },
