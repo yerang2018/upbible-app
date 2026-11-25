@@ -25,7 +25,7 @@ export function AppleLoginButton({ disabled, dimmed, onPress }: AppleLoginButton
     onPress={() => { void onPress(); }}
     style={[styles.button, dimmed && styles.dimmed]}
   >
-    <Text style={styles.text}>{'\uF8FF'}  Apple로 로그인</Text>
+    <Text style={styles.text}><Text style={styles.logo}>{'\uF8FF'}</Text>  Apple로 로그인</Text>
   </Pressable>;
 }
 
@@ -33,4 +33,5 @@ const styles = StyleSheet.create({
   button: { minHeight: 56, borderRadius: 14, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 18, backgroundColor: '#000000' },
   dimmed: { opacity: 0.55 },
   text: { color: '#FFFFFF', fontSize: 16, fontWeight: '700' },
+  logo: { fontSize: 14 },
 });

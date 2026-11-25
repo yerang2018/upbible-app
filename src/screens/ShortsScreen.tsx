@@ -64,9 +64,9 @@ const VersePage = memo(function VersePage({ item, width, height, fontLevel, like
         <Text style={styles.actionLabel}>좋아요</Text>
       </Pressable>
       <Pressable style={styles.action} accessibilityRole="button"
-        accessibilityLabel={`${reference(item)} 댓글 ${commentCount}개`} onPress={() => onComments(item)}>
+        accessibilityLabel={`${reference(item)} 메모 ${commentCount}개`} onPress={() => onComments(item)}>
         <View style={[styles.actionCircle, { width: circleSize, height: circleSize }]}><LineIcon name="comment" size={28} /></View>
-        <Text style={styles.actionLabel}>{commentCount ? `댓글 ${commentCount}` : '댓글'}</Text>
+        <Text style={styles.actionLabel}>{commentCount ? `메모 ${commentCount}` : '메모'}</Text>
       </Pressable>
       <Pressable style={styles.action} accessibilityRole="button"
         accessibilityLabel={`${reference(item)} ${saved ? '저장 취소' : '저장'}`}
@@ -97,11 +97,6 @@ const VersePage = memo(function VersePage({ item, width, height, fontLevel, like
           <Text style={styles.source}>{attribution}</Text>
         </Pressable>
       </Link>
-    </View>
-    <View style={styles.progressTrack} accessibilityRole="progressbar"
-      accessibilityLabel={`${item.bookName} ${item.chapter}장 읽기 진행`}
-      accessibilityValue={{ min: 1, max: item.chapterLength, now: item.verse }}>
-      <View style={[styles.progressFill, { width: `${item.verse / item.chapterLength * 100}%` }]} />
     </View>
   </View>;
 });
@@ -185,6 +180,11 @@ export default function ShortsScreen() {
           onMomentumScrollEnd={onPageSettled} viewabilityConfig={viewabilityConfig} onViewableItemsChanged={onVisibleChanged}
           onScrollToIndexFailed={({ index }) => list.current?.scrollToOffset({ offset: index * size.height, animated: false })}
         />}
+      {ready && size.height > 0 && <View pointerEvents="none" style={styles.progressTrack}
+        accessibilityRole="progressbar" accessibilityLabel={`${current.bookName} ${current.chapter}장 읽기 진행`}
+        accessibilityValue={{ min: 1, max: current.chapterLength, now: current.verse }}>
+        <View style={[styles.progressFill, { width: `${current.verse / current.chapterLength * 100}%` }]} />
+      </View>}
       <View style={styles.feedHeader}>
         <FontSizeControl />
         <Pressable accessibilityRole="button" accessibilityLabel="성경 검색"
@@ -234,7 +234,7 @@ const styles = StyleSheet.create({
   verseAddress: { color: colors.muted, fontSize: 11 },
   sourceLink: { alignSelf: 'flex-start', marginTop: 12, paddingVertical: 5 },
   source: { color: colors.faint, fontSize: 9 },
-  progressTrack: { position: 'absolute', bottom: 0, height: 2, width: '100%', backgroundColor: colors.line },
+  progressTrack: { position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, backgroundColor: colors.line, zIndex: 4 },
   progressFill: { height: 2, backgroundColor: colors.navy },
   storageError: { color: colors.navy, fontSize: 11, paddingHorizontal: 24, paddingVertical: 8 },
 });
