@@ -20,15 +20,15 @@ export function CommentsSheet({ verse, onClose }: { verse: Verse | null; onClose
     reader.addComment(verse.id, draft);
     setDraft('');
   };
-  return <BottomSheet visible={Boolean(verse)} title={`댓글 ${comments.length}`} onClose={close}>
+  return <BottomSheet visible={Boolean(verse)} title={`메모 ${comments.length}`} onClose={close}>
     <Text style={styles.reference}>{verse && reference(verse)}</Text>
-    <Text style={styles.notice}>지금은 이 기기에만 저장되는 댓글입니다.</Text>
+    <Text style={styles.notice}>지금은 이 기기에만 저장되는 메모입니다.</Text>
     <ScrollView style={{ maxHeight: height * 0.3 }} keyboardShouldPersistTaps="handled">
       {comments.length === 0 ? <Text style={styles.empty}>이 말씀에 대한 생각을 남겨 보세요.</Text>
         : [...comments].reverse().map(comment => <View key={comment.id} style={styles.comment}>
           <View style={styles.row}>
             <Text style={styles.author}>나</Text>
-            <Pressable accessibilityRole="button" accessibilityLabel={`댓글 삭제: ${comment.text}`}
+            <Pressable accessibilityRole="button" accessibilityLabel={`메모 삭제: ${comment.text}`}
               hitSlop={10} onPress={() => reader.deleteComment(comment.id)}>
               <Text style={styles.delete}>삭제</Text>
             </Pressable>
@@ -37,9 +37,9 @@ export function CommentsSheet({ verse, onClose }: { verse: Verse | null; onClose
         </View>)}
     </ScrollView>
     <View style={styles.composer}>
-      <TextInput accessibilityLabel="댓글 입력" placeholder="댓글을 남겨 주세요" placeholderTextColor={colors.faint}
+      <TextInput accessibilityLabel="메모 입력" placeholder="메모를 남겨 주세요" placeholderTextColor={colors.faint}
         value={draft} onChangeText={setDraft} multiline maxLength={1000} style={styles.input} />
-      <Pressable accessibilityRole="button" accessibilityLabel="댓글 등록" accessibilityState={{ disabled: !draft.trim() || !reader.ready }}
+      <Pressable accessibilityRole="button" accessibilityLabel="메모 등록" accessibilityState={{ disabled: !draft.trim() || !reader.ready }}
         disabled={!draft.trim() || !reader.ready} onPress={submit}
         style={[styles.submit, (!draft.trim() || !reader.ready) && styles.disabled]}>
         <Text style={styles.submitText}>등록</Text>

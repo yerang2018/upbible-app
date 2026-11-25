@@ -73,7 +73,6 @@ export default function LoginScreen() {
           style={styles.logo}
         />
         <Text accessibilityRole="header" style={styles.name}>업바이블</Text>
-        <Text style={styles.tagline}>숏폼 말고,{'\n'}하나님 말씀을 내리는 시간</Text>
       </View>
 
       <View style={styles.actions}>
@@ -99,7 +98,6 @@ const styles = StyleSheet.create({
   brand: { alignItems: 'center', paddingTop: 28 },
   logo: { width: 92, height: 92, borderRadius: 24, backgroundColor: '#FFFFFF' },
   name: { color: colors.navy, fontFamily: serif, fontSize: 30, fontWeight: '700', marginTop: 18 },
-  tagline: { color: colors.navy, fontFamily: serif, fontSize: 22, lineHeight: 34, textAlign: 'center', marginTop: 24 },
   actions: { gap: 12, paddingTop: 36 },
   providerButton: { minHeight: 56, borderRadius: 14, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 18 },
   providerButtonText: { color: colors.navy, fontSize: 16, fontWeight: '700' },
